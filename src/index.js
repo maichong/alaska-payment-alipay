@@ -16,7 +16,7 @@ export default class AlipayPlugin {
     this.init(service);
   }
 
-  init() {
+  init(service) {
     this.service = service;
     service.payments['alipay'] = this;
     service.addConfigDir(__dirname);
