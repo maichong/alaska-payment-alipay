@@ -57,15 +57,21 @@ export default class AlipayPlugin {
     if (!params.notify_url && ctx) {
       params.notify_url = ctx.protocol + '://' + ctx.host + this.service.config('prefix') + '/api/notify/alipay';
     }
-    let link = this.createQueryString(this.paramsSorter(this.paramsFilter(params)));
+    let link = this.createQueryString(this.paramsFilter(params));
 
     let signer = crypto.createSign('RSA-SHA1');
     signer.update(link, 'utf8');
     params.sign = signer.sign(this.rsa_private_key, "base64");
 
-    let url = GATEWAY + this.createQueryStringUrlencode(params);
-    console.log(params);
-    return url;
+    return GATEWAY + this.createQueryStringUrlencode(params);
+  }
+
+  async verify(data) {
+    let filtered = this.paramsFilter(data);
+    let link = this.createQueryString(filtered);
+    let verify = crypto.createVerify('RSA-SHA1');
+    verify.update(link, 'utf8');
+    return verify.verify(this.alipay_public_key, data.sign, 'base64');
   }
 
   /**
@@ -82,30 +88,16 @@ export default class AlipayPlugin {
     }, {});
   }
 
-  paramsSorter(params) {
-    let sorted = {};
-    Object.keys(params).sort((a, b)=>a > b).forEach(key => sorted[key] = params[key]);
-    return sorted;
-  }
-
   /**
    * 把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串
    * @param params
    * @returns {string}
    */
   createQueryString(params) {
-    let arr = [];
-    for (let key in params) {
-      arr.push(key + '=' + params[key]);
-    }
-    return arr.join('&');
+    return Object.keys(params).sort().map(key => key + '=' + params[key]).join('&');
   }
 
   createQueryStringUrlencode(params) {
-    let arr = [];
-    for (let key in params) {
-      arr.push(key + '=' + encodeURIComponent(params[key]));
-    }
-    return arr.join('&');
+    return Object.keys(params).sort().map(key => key + '=' + encodeURIComponent(params[key])).join('&');
   };
 }
