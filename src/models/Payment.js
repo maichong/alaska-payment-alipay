@@ -20,6 +20,6 @@ export const fields = {
 };
 
 export default function (Payment) {
-  if (_.find(Payment.fields.payment.options, opt => opt.value === 'alipay')) return;
-  Payment.fields.payment.options.push({ label: 'Alipay', value: 'alipay' });
+  if (_.find(Payment.fields.type.options, opt => opt.value === 'alipay')) return;
+  Payment.fields.type.options.push({ label: 'Alipay', value: 'alipay' });
 }

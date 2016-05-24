@@ -43,20 +43,16 @@ export default class AlipayPlugin {
 
   /**
    * 创建支付参数
-   * @param {Context} ctx
    * @param {Payment} payment
    * @param {Object} [data]
    * @returns {string}
    */
-  async createParams(ctx, payment, data) {
+  async createParams(payment, data) {
     let params = Object.assign({}, this._config, {
       subject: payment.title,
       out_trade_no: payment.id,
       total_fee: payment.amount
     }, data);
-    if (!params.notify_url && ctx) {
-      params.notify_url = ctx.protocol + '://' + ctx.host + this.service.config('prefix') + '/api/notify/alipay';
-    }
     let link = this.createQueryString(this.paramsFilter(params));
 
     let signer = crypto.createSign('RSA-SHA1');
